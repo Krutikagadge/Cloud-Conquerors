@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import gdown
 
 # Set page config as the first command
 st.set_page_config(page_title="Twitter Sentiment Analysis", layout="wide")
@@ -24,26 +25,27 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# File path
-file_path = r"D:\Projects\tp\srever\processed_twitter_data.csv"
+# Google Drive file ID (Extracted from your link)
+file_id = "1JANaL2W03XCeaZXaHL4X0u6Oe6hnAFbM"
+file_path = "processed_twitter_data.csv"
 
-# Load and preprocess data
+# Function to download dataset from Google Drive
 @st.cache_data
-def load_data():
+def download_and_load_data():
     try:
+        url = f"https://drive.google.com/uc?id={file_id}"
+        gdown.download(url, file_path, quiet=False)
+
         df = pd.read_csv(file_path, encoding="utf-8")
         df = df.rename(columns={"tweet": "Tweet", "new_sentiment": "Sentiment"})  # Standardize column names
         df = df[["Tweet", "Sentiment"]]  # Keep only relevant columns
         df = df.dropna()
         return df
-    except FileNotFoundError:
-        st.error(f"❌ File not found: {file_path}. Ensure it's in the correct location.")
-        return pd.DataFrame(columns=["Tweet", "Sentiment"])
     except Exception as e:
         st.error(f"❌ Error loading dataset: {e}")
         return pd.DataFrame(columns=["Tweet", "Sentiment"])
 
-df = load_data()
+df = download_and_load_data()
 
 # Limit dataset for better performance
 max_rows_to_display = 1000  # Limit table display
